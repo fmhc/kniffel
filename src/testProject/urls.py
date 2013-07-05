@@ -20,7 +20,9 @@ urlpatterns = patterns('',
     url(r'^js/jquery-1.10.2.js', 'kniffelApp.views.jsjquery'),
     # Uncomment the next line to enable the admin:
     #url(r'^$', TemplateView.as_view(template_name='base.html')),
-    url(r'^accounts/', include('bootstrap_theme.registration_urls')),
+    #url(r'^accounts/', include('bootstrap_theme.registration_urls')),
 
     url(r'^admin/', include(admin.site.urls)),
+    
+    url(r'^accounts/', include('registration.backends.simple.urls')), 
 )

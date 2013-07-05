@@ -3,6 +3,8 @@ import os.path
 PROJECT_ROOT = os.path.normpath(os.path.dirname(__file__)+'/..')
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+REGISTER_REDIRECT_URL = "http://localhost:8000/kniffel"
+
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -129,10 +131,14 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'registration',
     'kniffelApp',
     'bootstrap_theme',
     'bootstrapped',
 )
+
+# for "registration" App
+ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window; you may, of course, use a different value.
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

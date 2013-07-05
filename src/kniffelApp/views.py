@@ -4,6 +4,7 @@ from kniffelApp.models import *
 from django.http import HttpResponse
 
 def kniffel(request):
+    
     latest_game_list = game.objects.all().order_by('start')[:3]
     latest_player_list = player.objects.all().order_by('id')[:3]
     t = loader.get_template('kniffel/kniffel.html')

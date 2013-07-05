@@ -18,7 +18,7 @@
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <script src="{{STATIC_URL}}js/jquery-1.10.2.js" type="text/javascript"></script>
-    {% block extrahead %}
+       {% block extrahead %}
     {% endblock %}
     <script type="text/javascript">
     $(function(){
@@ -40,9 +40,9 @@
               <ul class="nav">
                 <li><a href="/">Home</a></li>
                 <li><a href="/kniffel">Kniffel</a></li>
-                <li class="active"><a href="/highscore">Highscore</a></li>
+                <li><a href="/highscore">Highscore</a></li>
                 <li><a href="/download">Download</a></li>
-                <li><a href="/impressum">Impressum</a></li>
+                <li class="active"><a href="/impressum">Impressum</a></li>
               </ul>
               {% endblock %}
             </div>
@@ -51,51 +51,11 @@
       </div>
 {% include 'fragments/messages.html' %}
 {% block content %}
-		<h1>Highscore</h1>
-		<div class="row-fluid">
-			<div class="span12">
-			
-			{% if highscore_list %}
-		    <table class="table table-condensed table-hover">
-          	<tr>
-          		<td>#</td>
-          		<td>Spielname</td>
-          		<td>Highscore</td>
-          	</tr>
-		    {% for game in highscore_list %}
-		    <tr>
-          		<td>{{ game.id }}</td>
-          		<td>{{ game.name }}</td>
-          		<td>0</td>
-          	</tr>
-		    {% endfor %}
-		    </table>
-		{% else %}
-		<table class="table table-condensed table-hover">
-          	<tr>
-          		<td>#</td>
-          		<td>Spielname</td>
-          		<td>Highscore</td>
-          	</tr>
-          	<tr class="">
-			    <td>82</td>
-			    <td>Superspiel</td>
-			    <td>184</td>
-			  </tr>
-			<tr class="">
-			    <td>81</td>
-			    <td>Finns Game</td>
-			    <td>176</td>
-			  </tr>
-			  <tr class="">
-			    <td>80</td>
-			    <td>Huhnsuche</td>
-			    <td>195</td>
-			  </tr>
-          </table>
-          {% endif %}
-			
-      		</div>
+		<h1>Impressum</h1>
+      	<div class="row-fluid">
+        	<div class="span12 well">
+        	Hier muss noch ein Impressum rein
+			</div>
 		</div>
 
 {% endblock %}
