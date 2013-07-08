@@ -41,14 +41,14 @@ class test_instanz(TestCase):
         Test ob eine Instanz erstellt werden kann
         """
         ins = instanz()
-        #x = ins.new()
+        #x = ins.new_game()
         
         #self.assertIsInstance(x, instanz, "Ist eine Instanz")    
         self.assertIsInstance(ins, instanz, "Ist eine Instanz")    
     
     def test_instanz_new(self):
         ins = instanz()
-        x = ins.new()
+        x = ins.new_game()
         self.assertIsInstance(x, instanz, "Ist eine Instanz")    
         
     

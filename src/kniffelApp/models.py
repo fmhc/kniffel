@@ -8,6 +8,7 @@ from xmlrpclib import DateTime
 from django.utils import timezone
 from django.db.models.base import Model
 from django.test import TestCase
+from unittest import case
    
 
 class playerManager(models.Manager):
@@ -52,28 +53,192 @@ class game(models.Model):
 #    player = [(player()), player(), player(), player()]        
     #player = [(player()), player()]
  
-    def startgame(self):
+    def play(self):
         
-        for plyr in self.player.all():
-            x = result()
-            x.game = self.pk
-            x.player.entry_set.add(plyr)
-            x.save()
-            
-        self.runde = 1
-        self.save()
-        
+#        for plyr in self.player.all():
+#            x = result()
+#            x.game = self
+#            x.player.entry_set.add(plyr)
+#            x.save()
+#        self.runde = 1
+#        self.save()
+       
         while self.runde < 14:
             for plyr in self.player.all():
-                print "Runde " + self.runde
-                act_res = result.objects.filter(player=plyr.pk,game=self.pk)
-                print act_res.objects.all()
-                inp = input("naechste Runde (y/n)")
+                print "[Spieler " + str(plyr) + "]"
+                print "[Runde " + str(self.runde) + "]"                
+                #result.objects.get(player__id=1, game__id=1)
+                act_res = result.objects.get(player__id=plyr.pk, game__id=self.pk)
+                pot_res = result()
+                ro = game_round()
                 
-                if inp == "y":
+                #wuerfeln
+                diceset = ro.roll()
+                print u"[1. Versuch] Würfelergebnis: " 
+                print diceset
+                           
+                answer = raw_input("neuer Versuch")
+                if str(answer).lower() in ['y', 'yes']:
+                    
+                    # noch mal rollen?
+                    diceset = ro.roll()
+                    print "[2. Versuch]"
+                    print diceset
+                    
+                    answer = raw_input("neuer Versuch")
+                    if str(answer).lower() in ['y', 'yes']:
+                        
+                        # noch ein drittes mal rollen?
+                        diceset = ro.roll()
+                        print "[3. Versuch]"
+                        print diceset
+
+                   
+                pot_res.r1er = c1er(diceset) 
+                pot_res.r2er = c2er(diceset) 
+                pot_res.r3er = c3er(diceset) 
+                pot_res.r4er = c4er(diceset) 
+                pot_res.r5er = c5er(diceset) 
+                pot_res.r6er = c6er(diceset) 
+                pot_res.rbonus = cbonus(act_res)
+                pot_res.r3p = c3p(diceset) 
+                pot_res.r4p = c4p(diceset) 
+                pot_res.rfullhouse = cfullhouse(diceset) 
+                pot_res.rkleinestr = ckleinestr(diceset) 
+                pot_res.rfgrossestr = cgrossestr(diceset)
+                pot_res.rkniffel = ckniffel(diceset)
+                pot_res.rchance = cchance(diceset)
+                        
+                print "potentielle ergebnisse"
+                print "[1] - 1er"
+                print act_res.r1er
+                if act_res.r1er == None:
+                    print pot_res.r1er 
+                else:
+                    print str(act_res.r1er) + " x"
+                print "[2] - 2er"
+                print act_res.r2er
+                if act_res.r2er == None:
+                    print pot_res.r2er 
+                else:
+                    print str(act_res.r2er) + " x"
+                print "[3] - 3er"
+                print act_res.r3er
+                if act_res.r3er == None:
+                    print pot_res.r3er 
+                else:
+                    print str(act_res.r3er) + " x"
+                print "[4] - 4er"
+                print act_res.r4er
+                if act_res.r4er == None:
+                    print pot_res.r4er 
+                else:
+                    print str(act_res.r4er) + " x"
+                print "[5] - 5er"
+                print act_res.r5er
+                if act_res.r5er == None:
+                    print pot_res.r5er 
+                else:
+                    print str(act_res.r5er) + " x"
+                print "[6] - 6er"
+                print act_res.r6er
+                if act_res.r6er == None:
+                    print pot_res.r6er 
+                else:
+                    print str(act_res.r6er) + " x"
+                #print "x - Bonus"
+                #print pot_res.rbonus 
+                print pot_res.r3p 
+                print pot_res.r4p 
+                print pot_res.rfullhouse 
+                print pot_res.rkleinestr 
+                print pot_res.rfgrossestr
+                print pot_res.rkniffel
+                print pot_res.rchance 
+                
+                
+                
+                bla = 1
+                
+                
+                def u1er():
+                    if act_res.r1er == None:
+                        act_res.r1er = pot_res.r1er
+                        bla = 0
+                    act_res.rbonus = cbonus(act_res)
+                    print "1er gewaehlt"
+                 
+                def u2er():
+                    if act_res.r2er == None:
+                        act_res.r2er = pot_res.r2er
+                        bla = 0
+                    act_res.rbonus = cbonus(act_res)
+                    print "2er gewaehlt"
+                    
+                def u3er():
+                    if act_res.r3er == None:
+                        act_res.r3er = pot_res.r3er
+                        bla = 0
+                    act_res.rbonus = cbonus(act_res)
+                    print "3er gewaehlt"
+                    
+                def u4er():
+                    if act_res.r4er == None:
+                        act_res.r4er = pot_res.r4er
+                        bla = 0
+                    act_res.rbonus = cbonus(act_res)
+                    print "4er gewaehlt"
+                 
+                def u5er():
+                    if act_res.r5er == None:
+                        act_res.r5er = pot_res.r5er
+                        bla = 0
+                    act_res.rbonus = cbonus(act_res)
+                    print "5er gewaehlt"
+                    
+                def u6er():
+                    if act_res.r6er == None:
+                        act_res.r6er = pot_res.r6er
+                        bla = 0
+                    act_res.rbonus = cbonus(act_res)
+                    print "1er gewaehlt"        
+                                               
+                options = { 1 : u1er,
+                            2 : u2er,
+                            3 : u3er,
+                            4 : u4er,
+                            5 : u5er,
+                            6 : u6er,
+                            }
+                
+                while bla == 1:
+                    huhu = input("Wo setzen?")
+                    options[huhu]()
+                    
+                print "ergebnisse"
+                print act_res.r1er 
+                print act_res.r2er 
+                print act_res.r3er 
+                print act_res.r4er 
+                print act_res.r5er 
+                print act_res.r6er 
+                print act_res.rbonus 
+                print act_res.r3p 
+                print act_res.r4p 
+                print act_res.rfullhouse 
+                print act_res.rkleinestr 
+                print act_res.rfgrossestr
+                print act_res.rkniffel
+                print act_res.rchance 
+                
+                act_res.save()
+                inp = raw_input("naechste Runde (y/n)")
+                
+                if (inp == str('y')):
                     print "naechster spieler..."
                 else:
                     print "dann nicht..."
+                    
             self.nextround()
         return True
         
@@ -101,8 +266,8 @@ class game(models.Model):
 
 
 class result(models.Model):
-    player = models.ManyToManyField(player, related_name='p+')
     game = models.ForeignKey(game, related_name='g+')
+    player = models.ForeignKey(player, related_name='p+')
     
     r1er = models.IntegerField(null=True) # 1er: es werden nur 1er gezaehlt
     r2er = models.IntegerField(null=True) # 2er: es werden nur 2er gezaehlt
@@ -118,15 +283,12 @@ class result(models.Model):
     rfgrossestr = models.IntegerField(null=True) # 1-2-3-4-5 oder 2-3-4-5-6 40 Punkte
     rkniffel = models.IntegerField(null=True) # Fuenf gleiche Wuerfel 50 Punkte
     rchance = models.IntegerField(null=True) # Alle Augen zaehlen
-    def checkbonus(self):
-        rsum1 = self.r1er + self.r2er + self.r3er + self.r4er + self.r5er + self.r6er
-        if (rsum1 >= 63):
-            self.rbonus = 35
-            self.save()
-            return self.rbonus
-        else:
-            self.rbonus = 0
-            return False
+    
+    def sum_oben(self):
+        return 0
+    
+    def sum_unten(self):
+        return 0
 
     
 def OfAKind(dice, n):
@@ -178,7 +340,31 @@ def c6er(dice):
  
 def ckniffel(dice):
     return 50 if len(dice) == 5 and len(set(dice)) == 1 else 0
-    
+
+def cbonus(res):
+        rsumme = 0
+        if (res.r1er != None):
+            rsumme = rsumme + res.r1er
+        if (res.r2er != None):
+            rsumme = rsumme + res.r2er
+        if (res.r3er != None):
+            rsumme = rsumme + res.r3er
+        if (res.r4er != None):
+            rsumme = rsumme + res.r4er
+        if (res.r5er != None):
+            rsumme = rsumme + res.r5er
+        if (res.r6er != None):
+            rsumme = rsumme + res.r6er
+        
+        #rsum1 = res.r1er + res.r2er + res.r3er + res.r4er + res.r5er + res.r6er
+        if (rsumme >= 63):
+            res.rbonus = 35
+            #self.save()
+            return res.rbonus
+        else:
+            res.rbonus = 0
+            return 0
+            
 def checkall(dice):
     
     return False
@@ -254,7 +440,7 @@ class instance(models.Model):
     activegame = game()
     #objects = instanceManager()
     
-    def new(self):
+    def new_game(self):
         # neue Instanz erstellen
         myinstance = instance()
         myinstance.activegame = game()
@@ -289,7 +475,7 @@ class instance(models.Model):
 class processchecker(models.Model):
     if not (instance.objects.all()):    
         print "es rennt keine instanz"
-        #newinstance = instance.objects.new()
+        #newinstance = instance.objects.new_game()
         
         
         
@@ -298,7 +484,7 @@ class processchecker(models.Model):
 '''
 class instanz(models.Model):
     activegame = models.ForeignKey(game, related_name='ga+', null=True)
-    def new(self):
+    def new_game(self):
         # neue Instanz erstellen
         myinstance = instanz()
         myinstance.activegame = game()
@@ -334,33 +520,61 @@ class instanz(models.Model):
               
 class instanz(models.Model):
     activegame = models.ForeignKey(game, related_name='ga+', null=True)
-    def new(self, gamename=None, player1=None, player2=None, player3=None, player4=None):
+    def new_game(self, gamename=None, player1=None, player2=None, player3=None, player4=None):
         # neue Instanz erstellen
-        
         self.activegame = game()
-        self.activegame.name = raw_input("Spielname: ")
+        if ( gamename != None ):
+            self.activegame.name = gamename
+        else:
+            self.activegame.name = raw_input("Spielname: ")
+        
+        self.activegame.save()    
+        
+        # Anzahl Spieler festlegen
+        if ( player1 != None ):
+                nickname = str(player1)
+                newplayer = player(nick=nickname)
+                newplayer.save()
+                self.activegame.player.add(newplayer)
+                if ( player2 != None ):
+                    nickname = str(player2)
+                    newplayer = player(nick=nickname)
+                    newplayer.save()
+                    self.activegame.player.add(newplayer)
+                if ( player3 != None ):
+                    nickname = str(player3)
+                    newplayer = player(nick=nickname)
+                    newplayer.save()
+                    self.activegame.player.add(newplayer)
+                if ( player4 != None ):
+                    nickname = str(player4)
+                    newplayer = player(nick=nickname)
+                    newplayer.save()
+                    self.activegame.player.add(newplayer)
+                
+        else:
+            i = 0
+            anzahl = int(raw_input(u"Spieleranzahl: "))
+            while i < anzahl:
+    #            newplayer.nick = str(raw_input(u"Name fuer Spieler" + str(i) + ": "))        
+                #nickname = "New Player"
+                #dynamicplayertext = "Name für Spieler "+str(i)
+                #nick = input(dynamicplayertext)      
+                #str(nickname)  
+                nickname = str(raw_input("Spielername: "))
+                
+                print u"%s hinzugefügt", nickname
+                #newplayer = player.objects.create_player("'"+str(nick)+"'")
+                #newplayer.save()
+                #self.mygame.player.entry_set.add(newplayer)
+                newplayer = player(nick=nickname)
+                newplayer.save()
+                self.activegame.player.add(newplayer)
+                
+                i = i + 1
+                
+                
         self.activegame.save()    
         self.save()
-   
-        # Anzahl Spieler festlegen
-        i = 0
-        anzahl = int(raw_input(u"Spieleranzahl: "))
-        while i < anzahl:
-#            newplayer.nick = str(raw_input(u"Name fuer Spieler" + str(i) + ": "))        
-            #nickname = "New Player"
-            #dynamicplayertext = "Name für Spieler "+str(i)
-            #nick = input(dynamicplayertext)      
-            #str(nickname)  
-            nickname = str(raw_input("Spielername: "))
-            
-            print u"%s hinzugefügt", nickname
-            #newplayer = player.objects.create_player("'"+str(nick)+"'")
-            #newplayer.save()
-            #self.mygame.player.entry_set.add(newplayer)
-            newplayer = player(nick=nickname)
-            newplayer.save()
-            self.activegame.player.add(newplayer)
-            
-            i = i + 1
-        return self
+        return self.activegame
         

@@ -3,26 +3,32 @@ from django.views.generic.base import TemplateView
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
+from testProject import settings
 
 urlpatterns = patterns('',
-    # Examples:
-    #url(r'^$', TemplateView.as_view(template_name='index.html')),
-    url(r'^$', 'kniffelApp.views.home', name='home'),
-    # url(r'^testProject/', include('testProject.foo.urls')),
+    # Admin and Accound Stuff
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),    
+    url(r'^accounts/', include('registration.backends.simple.urls')), 
+   
+    # Kniffel Links
+    
+    #url(r'^kniffel/$', include('kniffelApp.urls')),
+    url(r'^kniffel/w/(?P<w_id>\d+)/$', 'kniffelApp.views.kniffel_w_hold', name='kniffel_w_hold'),
+    #url(r'^kniffel/start/(?P<gamename>\w+)/$', 'kniffelApp.views.kniffel_start', name="kniffel_gamename"),
+    url(r'^kniffel/start/$', 'kniffelApp.views.kniffel_start'),
     url(r'^kniffel/$', 'kniffelApp.views.kniffel'),
     url(r'^highscore/$', 'kniffelApp.views.highscore'),
     url(r'^download/$', 'kniffelApp.views.download'),
     url(r'^impressum/$', 'kniffelApp.views.impressum'),
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
     url(r'^css/bootstrap.css', 'kniffelApp.views.bootstrapcss'),
     url(r'^css/bootstrap-responsive.css', 'kniffelApp.views.bootstrapresponsivecss'),
     url(r'^js/jquery-1.10.2.js', 'kniffelApp.views.jsjquery'),
-    # Uncomment the next line to enable the admin:
-    #url(r'^$', TemplateView.as_view(template_name='base.html')),
-    #url(r'^accounts/', include('bootstrap_theme.registration_urls')),
 
-    url(r'^admin/', include(admin.site.urls)),
-    
-    url(r'^accounts/', include('registration.backends.simple.urls')), 
+    url(r'^$', 'kniffelApp.views.home', name='home'),
+)
+
+urlpatterns += patterns('',
+    (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT }),
 )

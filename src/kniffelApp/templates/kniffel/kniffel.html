@@ -4,62 +4,37 @@
 <head>
 	<meta charset="utf-8">
 	{% load staticfiles %}
-	
-	<!--<link rel="stylesheet" media="screen" href="style.css">-->
-	<link href="http://localhost:8000/static/css/bootstrap.css" rel="stylesheet">
-	<style>
-      body {
-        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
-      }
-    </style>
+	{% include 'fragments/head.html' %}
+	{% include 'fragments/javascript.html' %}
 	<script type="text/javascript">
-	$('#myModal').modal(options)
+	$(document).ready(function(){
+		$("#testbutton").click(function() {
+		  alert("Handler for .click() called.");
+		  
+		});
+
+	});
+function testfunc(){
+	alert('testfunc');
+}
 	</script>
-    <link href="{{STATIC_URL}}css/bootstrap-responsive.css" rel="stylesheet">
-	<!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <script src="{{STATIC_URL}}js/jquery-1.10.2.js" type="text/javascript"></script>
-       {% block extrahead %}
-    {% endblock %}
-    <script type="text/javascript">
-    $(function(){
-    {% block jquery %}
-    {% endblock %}
-    });
-    </script>
-	<title>PLKniffel</title>
+	<title>Kniffel</title>
 </head>
 {% block body %}
     <div class="container">
 
       <div class="masthead">
         <h3 class="muted">{% block branding %}Kniffel{% endblock %}</h3>
-        <div class="navbar">
-          <div class="navbar-inner">
-            <div class="container">
-              {% block nav %}
-              <ul class="nav">
-                <li><a href="/">Home</a></li>
-                <li class="active"><a href="/kniffel">Kniffel</a></li>
-                <li><a href="/highscore">Highscore</a></li>
-                <li><a href="/download">Download</a></li>
-                <li><a href="/impressum">Impressum</a></li>
-              </ul>
-              {% endblock %}
-            </div>
-          </div>
-        </div><!-- /.navbar -->
+{% include 'fragments/navbar.html' %}
       </div>
 {% include 'fragments/messages.html' %}
+
 {% block content %}
 
 
-<!-- Button to trigger modal -->
-<a href="#myModal" role="button" class="btn" data-toggle="modal">Launch demo modal</a>
+<!-- Button to trigger modal 
+<a href="#myModal" role="button" class="btn" onclick="$('#myModal').modal('show')" data-toggle="modal">Launch demo modal</a>
  
-<!-- Modal -->
 <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -73,19 +48,33 @@
     <button class="btn btn-primary">Save changes</button>
   </div>
 </div>
+-->
+<div class="well" id="starten">
 
+<form action="/kniffel/start/" method="POST">{% csrf_token %}
+<input type="text" id="gamename">
+<input type="submit" class="btn btn-primary">start</input>
+</div>
+
+{% if not hold_w_id == False %}
+	<div class="well">hold_w_id gibt es! 
+	{% for w_id in hold_w_id %}
+		{{ w_id }}
+	{% endfor %}
+	</div>
+{% endif %}
 
       <div class="row-fluid">
         <div class="span8">
-         	<div class="well">
-        	Runde 1 von 13<br>
-        	<div class="progress progress-striped active">
-  				<div class="bar" style="width: 4%;"></div>
-			</div>
+         	<div class="well" id="round_counter">
+        		<p id="round_text">Runde 1 von 13</p>
+	        	<div class="progress progress-striped active">
+	  				<div id="game_progress" class="bar" style="width: 4%;"></div>
+				</div>
         	</div>
         
-	        <div class="well">
-	        	<div id="wuerfel" class="row">
+	        <div class="well" id="dice_area">
+	        	<div id="dices" class="row">
 	        		<div class="span1"></div>
 	        		<div id="w1" class="span2 well text-center">1</div>
 	        		<div id="w2" class="span2 well text-center">2</div>
@@ -93,20 +82,20 @@
 	        		<div id="w4" class="span2 well text-center">4</div>
 	        		<div id="w5" class="span2 well text-center">5</div>
 	        	</div>
-	        	<div id="holder" class="row">
+	        	<div id="dices_hold" class="row">
 	        		<div class="span1"></div>
-	        		<div class="span2 text-center"><a href="" class="btn btn-inverse"><i class="icon-pause icon-white"></i> hold</a></div>
-	        		<div class="span2 text-center"><a href="" class="btn btn-inverse"><i class="icon-pause icon-white"></i> hold</a></div>
-	        		<div class="span2 text-center"><a href="" class="btn btn-inverse"><i class="icon-pause icon-white"></i> hold</a></div>
-	        		<div class="span2 text-center"><a href="" class="btn btn-inverse"><i class="icon-pause icon-white"></i> hold</a></div>
-	        		<div class="span2 text-center"><a href="" class="btn btn-inverse"><i class="icon-pause icon-white"></i> hold</a></div>
+	        		<div class="span2 text-center"><a href="/kniffel/w/1" class="btn btn-inverse" id="hold_w1"><i id="ihold_w1" class="icon-pause icon-white"></i> hold</a></div>
+	        		<div class="span2 text-center"><a href="/kniffel/w/2" class="btn btn-inverse" id="hold_w2"><i id="ihold_w2" class="icon-pause icon-white"></i> hold</a></div>
+	        		<div class="span2 text-center"><a href="/kniffel/w/3" class="btn btn-inverse" id="hold_w3"><i id="ihold_w3" class="icon-pause icon-white"></i> hold</a></div>
+	        		<div class="span2 text-center"><a href="/kniffel/w/4" class="btn btn-inverse" id="hold_w4"><i id="ihold_w4" class="icon-pause icon-white"></i> hold</a></div>
+	        		<div class="span2 text-center"><a href="/kniffel/w/5" class="btn btn-inverse" id="hold_w5"><i id="ihold_w5" class="icon-pause icon-white"></i> hold</a></div>
 	        	</div>
         	</div>
        		<div class="well">
        		<div class="progress progress-success progress-striped active">
-				<div class="bar" style="width: 33%"></div>
+				<div id="round_progress" class="bar" style="width: 33%"></div>
 			</div>
-        	<a href="" class="btn btn-success btn-large btn-block"><i class="icon-play icon-white"></i> Würfeln</a>
+        	<a href="#roll" class="btn btn-success btn-large btn-block"><i class="icon-play icon-white"></i> Würfeln</a>
         	</div>
         </div>
         <div class="span4 well">
