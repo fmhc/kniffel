@@ -12,7 +12,79 @@
 		  alert("Handler for .click() called.");
 		  
 		});
+	var_round_rolls_percent = 33 * {{ sess.session.game_round.wurf }}
+	$("#round_progress").css('width', var_round_rolls_percent + '%');
+	var_game_round_percent = 7.7 * {{ sess.session.game.runde }}
+	$("#game_progress").css('width', var_game_round_percent + '%');
 
+	
+	{% if sess.session.game_round.w1.hold == True %}
+		$("#w1").css('background-color', '#CCCCCC');
+		$("#hold_w1").addClass("btn-success");
+		$("#hold_w1").removeClass("btn-inverse");
+		$("#hold_w1").html("<i id=\"ihold_w1\" class=\"icon-play icon-white\"></i> play");
+	{% else %}
+		$("#w1").css('background-color', '#EEEEEE');
+		$("#hold_w1").addClass("btn-inverse");
+		$("#hold_w1").removeClass("btn-success");
+		$("#hold_w1").html("<i id=\"ihold_w1\" class=\"icon-pause icon-white\"></i> hold");
+	{% endif %}	
+	
+	{% if sess.session.game_round.w2.hold == True %}
+		$("#w2").css('background-color', '#CCCCCC');
+		$("#hold_w2").addClass("btn-success");
+		$("#hold_w2").removeClass("btn-inverse");
+		$("#hold_w2").html("<i id=\"ihold_w2\" class=\"icon-play icon-white\"></i> play");
+	{% else %}
+		$("#w2").css('background-color', '#EEEEEE');
+		$("#hold_w2").addClass("btn-inverse");
+		$("#hold_w2").removeClass("btn-success");
+		$("#hold_w2").html("<i id=\"ihold_w2\" class=\"icon-pause icon-white\"></i> hold");
+	{% endif %}	
+	
+	{% if sess.session.game_round.w3.hold == True %}
+		$("#w3").css('background-color', '#CCCCCC');
+		$("#hold_w3").addClass("btn-success");
+		$("#hold_w3").removeClass("btn-inverse");
+		$("#hold_w3").html("<i id=\"ihold_w3\" class=\"icon-play icon-white\"></i> play");
+	{% else %}
+		$("#w3").css('background-color', '#EEEEEE');
+		$("#hold_w3").addClass("btn-inverse");
+		$("#hold_w3").removeClass("btn-success");
+		$("#hold_w3").html("<i id=\"ihold_w3\" class=\"icon-pause icon-white\"></i> hold");
+	{% endif %}	
+
+	{% if sess.session.game_round.w4.hold == True %}
+		$("#w4").css('background-color', '#CCCCCC');
+		$("#hold_w4").addClass("btn-success");
+		$("#hold_w4").removeClass("btn-inverse");
+		$("#hold_w4").html("<i id=\"ihold_w4\" class=\"icon-play icon-white\"></i> play");
+	{% else %}
+		$("#w4").css('background-color', '#EEEEEE');
+		$("#hold_w4").addClass("btn-inverse");
+		$("#hold_w4").removeClass("btn-success");
+		$("#hold_w4").html("<i id=\"ihold_w4\" class=\"icon-pause icon-white\"></i> hold");
+	{% endif %}	
+	
+	{% if sess.session.game_round.w5.hold == True %}
+		$("#w5").css('background-color', '#CCCCCC');
+		$("#hold_w5").addClass("btn-success");
+		$("#hold_w5").removeClass("btn-inverse");
+		$("#hold_w5").html("<i id=\"ihold_w5\" class=\"icon-play icon-white\"></i> play");
+	{% else %}
+		$("#w5").css('background-color', '#EEEEEE');
+		$("#hold_w5").addClass("btn-inverse");
+		$("#hold_w5").removeClass("btn-success");
+		$("#hold_w5").html("<i id=\"ihold_w5\" class=\"icon-pause icon-white\"></i> hold");
+	{% endif %}	
+	
+	{% if sess.session.game_round.wurf == 3 %}
+		$("#btn_roll").addClass("disabled");
+		$("#btn_roll").removeClass("btn-success ");
+		$("#hold_w5").html("<i id=\"ihold_w5\" class=\"icon-play icon-white\"></i> play");
+	{% endif %}
+	
+	
 	});
 function testfunc(){
 	alert('testfunc');
@@ -50,24 +122,43 @@ function testfunc(){
 </div>
 -->
 <div class="well" id="starten">
+{% if not sess == False %}
+<div class="well">
+	Playername: {{ playername }}<br>
+	Session Game Name: {{ sess.session.game.name }}<br>	
+	Session Game Player All: {{ sess.session.game.player.all }}<br>
+	Session Playerlist: {{ sess.session.playerlist }}<br>
+	Session Game Runde: {{ sess.session.game.runde }}<br>
+	Session Game_round Wurf: {{ sess.session.game_round.wurf }}<br>
+	Session Diceset: {{ sess.session.diceset }}<br>
+	{% for key in sess.session.playerlist %}
+		{{ key }} 
 
-<form action="/kniffel/start/" method="POST">{% csrf_token %}
-<input type="text" id="gamename">
-<input type="submit" class="btn btn-primary">start</input>
-</div>
-
-{% if not hold_w_id == False %}
-	<div class="well">hold_w_id gibt es! 
-	{% for w_id in hold_w_id %}
-		{{ w_id }}
+		<br>
 	{% endfor %}
+	Session Player1: {{ sess.session.playerlist.0.player.nick }} 
 	</div>
 {% endif %}
 
+{% if sess.session.game == None %}
+<form action="/kniffel/start" method="POST">{% csrf_token %}
+<label for="gamename">Spielname: </label><input type="text" id="gamename" name="gamename"><br>
+<label for="player1">Spieler 1: </label><input type="text" id="player1" name="player1"><br>
+<label for="player2">Spieler 2: </label><input type="text" id="player2" name="player2"><br>
+<label for="player3">Spieler 3: </label><input type="text" id="player3" name="player3"><br>
+<label for="player4">Spieler 4: </label><input type="text" id="player4" name="player4"><br>
+<input type="submit" name="start" class="btn btn-primary">start</input>
+{% endif %}
+</form>
+</div>
+{% if not hold_w_id == False %}<div class="well"><a href="/kniffel/stop" class="btn btn-primary btn-warning">stop</a>
+	</div>
+{% endif %}
+{% if not sess.session.game == None %}
       <div class="row-fluid">
         <div class="span8">
          	<div class="well" id="round_counter">
-        		<p id="round_text">Runde 1 von 13</p>
+        		<p id="round_text">Runde {{ sess.session.game.runde }} von 13</p>
 	        	<div class="progress progress-striped active">
 	  				<div id="game_progress" class="bar" style="width: 4%;"></div>
 				</div>
@@ -76,11 +167,11 @@ function testfunc(){
 	        <div class="well" id="dice_area">
 	        	<div id="dices" class="row">
 	        		<div class="span1"></div>
-	        		<div id="w1" class="span2 well text-center">1</div>
-	        		<div id="w2" class="span2 well text-center">2</div>
-	        		<div id="w3" class="span2 well text-center">3</div>
-	        		<div id="w4" class="span2 well text-center">4</div>
-	        		<div id="w5" class="span2 well text-center">5</div>
+	        		<div id="w1" class="span2 well text-center"><img src="/static/img/dice-{{ sess.session.diceset.0 }}.png" id="iw1"></div>
+	        		<div id="w2" class="span2 well text-center"><img src="/static/img/dice-{{ sess.session.diceset.1 }}.png" id="iw2"></div>
+	        		<div id="w3" class="span2 well text-center"><img src="/static/img/dice-{{ sess.session.diceset.2 }}.png" id="iw3"></div>
+	        		<div id="w4" class="span2 well text-center"><img src="/static/img/dice-{{ sess.session.diceset.3 }}.png" id="iw4"></div>
+	        		<div id="w5" class="span2 well text-center"><img src="/static/img/dice-{{ sess.session.diceset.4 }}.png" id="iw5"></div>
 	        	</div>
 	        	<div id="dices_hold" class="row">
 	        		<div class="span1"></div>
@@ -93,9 +184,77 @@ function testfunc(){
         	</div>
        		<div class="well">
        		<div class="progress progress-success progress-striped active">
-				<div id="round_progress" class="bar" style="width: 33%"></div>
+				<div id="round_progress" class="bar" style="width: {{ sess.session.game_round.wurf }}%"></div>
 			</div>
-        	<a href="#roll" class="btn btn-success btn-large btn-block"><i class="icon-play icon-white"></i> Würfeln</a>
+        	<a id="btn_roll" href="/kniffel/roll" class="btn btn-success btn-large btn-block"><i class="icon-play icon-white"></i> Würfeln</a>
+        	<a id="btn_next" href="/kniffel/next" class="btn btn-success btn-large btn-block"><i class="icon-play icon-white"></i> Nächster Spieler / Runde</a>
+
+        	</div>
+        	<div class="well" id="debug-game">
+        	<table>
+        		<tr>
+        			<td>What?</td>
+        			<td>{{ sess.session.playerlist.0.player.nick }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.player.nick }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.player.nick }}</td>{% endif %}
+        			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.player.nick }}</td>{% endif %}
+        		</tr>
+        		<tr>
+        			<td>Einsen</td>
+        			<td>{{ sess.session.playerlist.0.r1er }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.r1er }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.r1er }}</td>{% endif %}
+          			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.r1er }}</td>{% endif %}        		
+          		</tr>
+        		<tr>
+        			<td>Zweier</td>
+        			<td>{{ sess.session.playerlist.0.r2er }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.r2er }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.r2er }}</td>{% endif %}
+          			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.r2er }}</td>{% endif %}        		
+          		</tr>
+        		<tr>
+        			<td>Dreien</td>
+        			<td>{{ sess.session.playerlist.0.r3er }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.r3er }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.r3er }}</td>{% endif %}
+          			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.r3er }}</td>{% endif %}        		
+        		</tr>
+        		<tr>
+        			<td>Vieren</td>
+        			<td>{{ sess.session.playerlist.0.r4er }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.r4er }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.r4er }}</td>{% endif %}
+          			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.r4er }}</td>{% endif %}        		
+        		</tr>
+        		<tr>
+        			<td>Fünfen</td>
+        			<td>{{ sess.session.playerlist.0.r5er }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.r5er }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.r5er }}</td>{% endif %}
+          			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.r5er }}</td>{% endif %}        		
+        		</tr>	
+        		<tr>
+        			<td>Sechsen</td>
+        			<td>{{ sess.session.playerlist.0.r6er }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.r6er }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.r6er }}</td>{% endif %}
+          			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.r6er }}</td>{% endif %}        		
+        		</tr>
+			</table>
+    r2er
+    r3er
+    r4er
+    r5er
+    r6er
+    rbonus
+    r3p
+    r4p
+    rfullhouse
+    rkleinestr
+    rfgrossestr
+    rkniffel
+    rchance
         	</div>
         </div>
         <div class="span4 well">
@@ -226,7 +385,7 @@ function testfunc(){
         	<div class="row" style="padding-left:20px"></div>
         </div>
       </div>
-
+{% endif %}
 {% endblock %}
       <hr>
 

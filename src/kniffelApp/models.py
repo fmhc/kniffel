@@ -13,8 +13,11 @@ from unittest import case
 
 class playerManager(models.Manager):
     def create_player(self, nick):
-        new_player = player.objects.create_player(nick=nick)
-        return new_player
+        if nick == None:
+            return False
+        else:
+            new_player = player.objects.create_player(nick=nick)
+            return new_player
     
     
 class player(models.Model):
@@ -23,10 +26,12 @@ class player(models.Model):
     #objects = playerManager()
         
     def __unicode__(self):
-        if (self.nick):
-            return self.nick
-        else:
-            return "NoName"
+        return self.nick
+    
+    #    if (self.nick):
+    #        return self.nick
+    #    else:
+    #        return "NoName"
     
     
 class game(models.Model):
@@ -36,7 +41,7 @@ class game(models.Model):
     name = models.CharField(max_length=200, null=True, default='New Game')
     runde = models.IntegerField(default=0)
     player = models.ManyToManyField(player, related_name='pl+', null=True)
-    #activeplayer = None
+   # activeplayer = 0
     
     #def __init__(self):
         #x = player()
@@ -249,7 +254,7 @@ class game(models.Model):
     
     def nextround(self):   
         self.runde = self.runde + 1
-        return True #runden
+        return self.runde
     
     def laufzeit(self):
         if (self.end):
@@ -283,6 +288,9 @@ class result(models.Model):
     rfgrossestr = models.IntegerField(null=True) # 1-2-3-4-5 oder 2-3-4-5-6 40 Punkte
     rkniffel = models.IntegerField(null=True) # Fuenf gleiche Wuerfel 50 Punkte
     rchance = models.IntegerField(null=True) # Alle Augen zaehlen
+    
+    def __unicode__(self):
+        return self.player.nick
     
     def sum_oben(self):
         return 0
@@ -405,6 +413,12 @@ class game_round(models.Model):
     wurf = models.IntegerField(default=1)
     state = [0, 0, 0, 0, 0]
     
+    def progress_bar_calc(self):
+        x = 100 / 3 * self.wurf
+        return x
+
+
+    
     def refresh_state(self):
         statea = [self.w1.value,
                   self.w2.value,
@@ -422,17 +436,21 @@ class game_round(models.Model):
     
     
     def roll(self):
-        if ( self.wurf <= 3 ):
-            self.wurf = self.wurf + 1
+        if ( self.wurf == 1 ):
+            pass
+            
+        if ( self.wurf < 3 ):
             if not ((self.w1.hold)): self.w1.roll()
             if not ((self.w2.hold)): self.w2.roll()
             if not ((self.w3.hold)): self.w3.roll()
             if not ((self.w4.hold)): self.w4.roll()
             if not ((self.w5.hold)): self.w5.roll()
-            
+            self.wurf = self.wurf + 1
+            self.save()
             return self.refresh_state()
         else:
-            return "Es wurde schon drei mal gewuerfelt"
+            print "Es wurde schon drei mal gewuerfelt"
+            return self.refresh_state()
 
 '''        
 class instance(models.Model):
@@ -520,7 +538,10 @@ class instanz(models.Model):
               
 class instanz(models.Model):
     activegame = models.ForeignKey(game, related_name='ga+', null=True)
-    def new_game(self, gamename=None, player1=None, player2=None, player3=None, player4=None):
+    def new_game(self, gamename, player1, player2=None, player3=None, player4=None):
+        print player1
+        print "-------------- NEW GAMENAME ----------------"
+        print gamename
         # neue Instanz erstellen
         self.activegame = game()
         if ( gamename != None ):
@@ -532,8 +553,9 @@ class instanz(models.Model):
         
         # Anzahl Spieler festlegen
         if ( player1 != None ):
-                nickname = str(player1)
+                nickname = player1
                 newplayer = player(nick=nickname)
+                
                 newplayer.save()
                 self.activegame.player.add(newplayer)
                 if ( player2 != None ):
@@ -573,7 +595,7 @@ class instanz(models.Model):
                 
                 i = i + 1
                 
-                
+        print "------------ jojojo ----------------"                
         self.activegame.save()    
         self.save()
         return self.activegame
