@@ -8,15 +8,11 @@
 	{% include 'fragments/javascript.html' %}
 	<script type="text/javascript">
 	$(document).ready(function(){
-		$("#testbutton").click(function() {
-		  alert("Handler for .click() called.");
-		  
-		});
+
 	var_round_rolls_percent = 33 * {{ sess.session.game_round.wurf }}
 	$("#round_progress").css('width', var_round_rolls_percent + '%');
 	var_game_round_percent = 7.7 * {{ sess.session.game.runde }}
 	$("#game_progress").css('width', var_game_round_percent + '%');
-
 	
 	{% if sess.session.game_round.w1.hold == True %}
 		$("#w1").css('background-color', '#CCCCCC');
@@ -86,9 +82,6 @@
 	
 	
 	});
-function testfunc(){
-	alert('testfunc');
-}
 	</script>
 	<title>Kniffel</title>
 </head>
@@ -104,26 +97,11 @@ function testfunc(){
 {% block content %}
 
 
-<!-- Button to trigger modal 
-<a href="#myModal" role="button" class="btn" onclick="$('#myModal').modal('show')" data-toggle="modal">Launch demo modal</a>
- 
-<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="myModalLabel">Modal header</h3>
-  </div>
-  <div class="modal-body">
-    <p>One fine body…</p>
-  </div>
-  <div class="modal-footer">
-    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-    <button class="btn btn-primary">Save changes</button>
-  </div>
-</div>
--->
+
 <div class="well" id="starten">
 {% if not sess == False %}
 <div class="well">
+	{{ message }}
 	Playername: {{ playername }}<br>
 	Session Game Name: {{ sess.session.game.name }}<br>	
 	Session Game Player All: {{ sess.session.game.player.all }}<br>
@@ -131,6 +109,11 @@ function testfunc(){
 	Session Game Runde: {{ sess.session.game.runde }}<br>
 	Session Game_round Wurf: {{ sess.session.game_round.wurf }}<br>
 	Session Diceset: {{ sess.session.diceset }}<br>
+	Session ...: {{ sess.GET.choose }}<br>
+	
+	{% if resultset in sess.session %} Session Resultset: 
+		{{ sess.session.resultset }}<br>
+	{% endif %}
 	{% for key in sess.session.playerlist %}
 		{{ key }} 
 
@@ -167,11 +150,10 @@ function testfunc(){
 	        <div class="well" id="dice_area">
 	        	<div id="dices" class="row">
 	        		<div class="span1"></div>
-	        		<div id="w1" class="span2 well text-center"><img src="/static/img/dice-{{ sess.session.diceset.0 }}.png" id="iw1"></div>
-	        		<div id="w2" class="span2 well text-center"><img src="/static/img/dice-{{ sess.session.diceset.1 }}.png" id="iw2"></div>
-	        		<div id="w3" class="span2 well text-center"><img src="/static/img/dice-{{ sess.session.diceset.2 }}.png" id="iw3"></div>
-	        		<div id="w4" class="span2 well text-center"><img src="/static/img/dice-{{ sess.session.diceset.3 }}.png" id="iw4"></div>
-	        		<div id="w5" class="span2 well text-center"><img src="/static/img/dice-{{ sess.session.diceset.4 }}.png" id="iw5"></div>
+	        		<div id="w1" class="span2 well text-center"><img src="/media/dice-{{ sess.session.diceset.0 }}.png" id="iw1"></div>
+	        		<div id="w2" class="span2 well text-center"><img src="/media/dice-{{ sess.session.diceset.1 }}.png" id="iw2"></div>
+	        		<div id="w3" class="span2 well text-center"><img src="/media/dice-{{ sess.session.diceset.2 }}.png" id="iw3"></div>
+	        		<div id="w4" class="span2 well text-center"><img src="/media/dice-{{ sess.session.diceset.3 }}.png" id="iw4"></div>
 	        	</div>
 	        	<div id="dices_hold" class="row">
 	        		<div class="span1"></div>
@@ -187,7 +169,7 @@ function testfunc(){
 				<div id="round_progress" class="bar" style="width: {{ sess.session.game_round.wurf }}%"></div>
 			</div>
         	<a id="btn_roll" href="/kniffel/roll" class="btn btn-success btn-large btn-block"><i class="icon-play icon-white"></i> Würfeln</a>
-        	<a id="btn_next" href="/kniffel/next" class="btn btn-success btn-large btn-block"><i class="icon-play icon-white"></i> Nächster Spieler / Runde</a>
+        	<!--<a id="btn_next" href="/kniffel/next" class="btn btn-success btn-large btn-block"><i class="icon-play icon-white"></i> Nächster Spieler / Runde</a>-->
 
         	</div>
         	<div class="well" id="debug-game">
@@ -258,26 +240,87 @@ function testfunc(){
         	</div>
         </div>
         <div class="span4 well">
-        	<div class="row" style="padding-left:20px"></div>
-
+        	<div class="row" style="padding-left:20px">
+        	<table class="table table-condensed">
+        		<tr>
+        			<th>Option</th>
+        			<th>Ergebnis</th>
+        			<th></th>
+        		</tr>
+        		<tr>
+        			<td class="text-center" id="label_r1er">Einser</td>
+        			<td class="text-center" id="pot_res_r1er">{{ pot_res.r1er }}</td>
+        			<td class="text-center" id="get_r1er"><a href="/kniffel/next?choose=r1er">wählen</a></td>
+        		</tr>
+        		<tr>
+					<td class="text-center" id="label_r2er">Zweier</td>
+        			<td class="text-center" id="pot_res_r2er">{{ pot_res.r2er }}</td>
+        			<td class="text-center" id="get_r2er"><a href="/kniffel/next?choose=r2er">wählen</a></td>
+        		</tr>
+        		<tr>
+					<td class="text-center" id="label_r3er">Dreier</td>
+        			<td class="text-center" id="pot_res_r3er">{{ pot_res.r3er }}</td>
+        			<td class="text-center" id="get_r3er"><a href="/kniffel/next?choose=r3er">wählen</a></td>
+        		</tr>
+        		<tr>
+					<td class="text-center" id="label_r4er">Vierer</td>
+        			<td class="text-center" id="pot_res_r4er">{{ pot_res.r4er }}</td>
+        			<td class="text-center" id="get_r4er"><a href="/kniffel/next?choose=r4er">wählen</a></td>
+        		</tr>
+        		<tr>
+					<td class="text-center" id="label_r5er">Fünfer</td>
+        			<td class="text-center" id="pot_res_r5er">{{ pot_res.r5er }}</td>
+        			<td class="text-center" id="get_r5er"><a href="/kniffel/next?choose=r5er">wählen</a></td>
+        		</tr>
+        		        		<tr>
+					<td class="text-center" id="label_r6er">Sechser</td>
+        			<td class="text-center" id="pot_res_r6er">{{ pot_res.r6er }}</td>
+        			<td class="text-center" id="get_r6er"><a href="/kniffel/next?choose=r6er">wählen</a></td>
+        		</tr>
+        		        		<tr>
+					<td class="text-center" id="label_rfullhouse">Full House</td>
+        			<td class="text-center" id="pot_res_rfullhouse">{{ pot_res.rfullhouse }}</td>
+        			<td class="text-center" id="get_rfullhouse"><a href="/kniffel/next?choose=rfullhouse">wählen</a></td>
+        		</tr>
+        	</table>
+        	
+        	</div>
+        	
+        	<div class="row" style="padding-left:20px">
+        		<div class="roption row-fluid">
+        			<div class="span5 text-center" id="label_r1er">Einser</div>
+        			<div class="span3 text-center" id="pot_res_r1er">{{ pot_res.r1er }}</div>
+        		</div>
+	        	<div class="roption row-fluid">
+        			<div class="span5 well text-center" id="label_r2er">Zweier</div>
+        			<div class="span3 well text-center" id="pot_res_r2er">{{ pot_res.r2er }}</div>
+        		</div>
+        	
+        	
+        	
+        	</div>
+        	
+        	
+        	
+			<!--
 			<div class="row" style="padding-left:20px">
 	    		<div class="input-prepend input-append">
-	    			<span class="add-on">30</span>
+	    			<span class="add-on">{{ pot_res.r1er }}</span>
 	    			<input type="text" style="max-width:35px" value="24">
 	    			<span class="add-on"> 1er <input type="radio" class="text-center" style="margin-bottom:15px;text-align:center" name="optionsRadios" id="optionsRadios1" value="r1er"> wählen</span>
 			  	</div>
 			</div>
 			<div class="row" style="padding-left:20px">
         		<div class="input-prepend input-append">
-        			<span class="add-on">30</span>
+        			<span class="add-on">{{ pot_res.r2er }}</span>
         			<input type="text" style="max-width:35px" value="24">
         			<span class="add-on"> 2er <input type="radio" class="text-center" style="margin-bottom:15px;text-align:center" name="optionsRadios" id="optionsRadios2" value="r2er"> wählen</span>
 			  	</div>
 			</div>
           	<div class="row" style="padding-left:20px">
         		<div class="input-prepend input-append">
-        			<span class="add-on">25</span>
-        			<input type="text" style="max-width:35px" value="15">
+        			<span class="add-on"></span>
+        			<input type="text" style="max-width:35px" value="{{ pot_res.3er }}">
         			<span class="add-on"> 3er <input type="radio" class="text-center" style="margin-bottom:15px;text-align:center" name="optionsRadios" id="optionsRadios3" value="r3er"> wählen</span>
 			  	</div>
 			</div>
@@ -381,7 +424,7 @@ function testfunc(){
         			<span class="add-on"> Summe Gesamtscore </span>
 			  	</div>
 			</div>
-        	
+        	-->
         	<div class="row" style="padding-left:20px"></div>
         </div>
       </div>
