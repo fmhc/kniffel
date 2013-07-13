@@ -154,6 +154,7 @@
 	        		<div id="w2" class="span2 well text-center"><img src="/media/dice-{{ sess.session.diceset.1 }}.png" id="iw2"></div>
 	        		<div id="w3" class="span2 well text-center"><img src="/media/dice-{{ sess.session.diceset.2 }}.png" id="iw3"></div>
 	        		<div id="w4" class="span2 well text-center"><img src="/media/dice-{{ sess.session.diceset.3 }}.png" id="iw4"></div>
+	        		<div id="w5" class="span2 well text-center"><img src="/media/dice-{{ sess.session.diceset.4 }}.png" id="iw5"></div>
 	        	</div>
 	        	<div id="dices_hold" class="row">
 	        		<div class="span1"></div>
@@ -223,6 +224,7 @@
         			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.r6er }}</td>{% endif %}
           			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.r6er }}</td>{% endif %}        		
         		</tr>
+        		
 			</table>
     r2er
     r3er
@@ -272,15 +274,25 @@
         			<td class="text-center" id="pot_res_r5er">{{ pot_res.r5er }}</td>
         			<td class="text-center" id="get_r5er"><a href="/kniffel/next?choose=r5er">wählen</a></td>
         		</tr>
-        		        		<tr>
+        		<tr>
 					<td class="text-center" id="label_r6er">Sechser</td>
         			<td class="text-center" id="pot_res_r6er">{{ pot_res.r6er }}</td>
         			<td class="text-center" id="get_r6er"><a href="/kniffel/next?choose=r6er">wählen</a></td>
         		</tr>
-        		        		<tr>
+        		<tr>
 					<td class="text-center" id="label_rfullhouse">Full House</td>
         			<td class="text-center" id="pot_res_rfullhouse">{{ pot_res.rfullhouse }}</td>
         			<td class="text-center" id="get_rfullhouse"><a href="/kniffel/next?choose=rfullhouse">wählen</a></td>
+        		</tr>
+        		<tr>
+					<td class="text-center" id="label_rkleinestr">kleine Straße</td>
+        			<td class="text-center" id="pot_res_rkleinestr">{{ pot_res.rkleinestr }}</td>
+        			<td class="text-center" id="get_rkleinestr"><a href="/kniffel/next?choose=rkleinestr">wählen</a></td>
+        		</tr>
+        		<tr>
+					<td class="text-center" id="label_rgrossestr">große Straße</td>
+        			<td class="text-center" id="pot_res_rgrossestr">{{ pot_res.rgrossestr }}</td>
+        			<td class="text-center" id="get_rgrossestr"><a href="/kniffel/next?choose=rgrossestr">wählen</a></td>
         		</tr>
         	</table>
         	

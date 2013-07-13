@@ -29,13 +29,42 @@ def kniffel(request):
                            },
                             context_instance=RequestContext(request))
 @csrf_protect
-def kniffel_next(request):
+def kniffel_next(request, args=None):
+    msg = "Test"
     if "game_round" in request.session:
         ro = request.session['game_round']
         #ro = game_round()
     else:
         ro = game_round()    
     
+    einfach = {}
+    i = 0
+    for entr in request.session['playerlist']:
+        einfach[i] = entr
+        
+    
+    print einfach
+    print einfach.keys()
+    for ei in einfach.values():
+        print ei
+    #print einfach[1]
+    
+    
+    if request.GET:
+        print "get funktioniert"
+        if request.GET['choose']:
+            print "funktioniret"
+            cho = request.GET['choose']
+            
+            if cho == "":
+                pass
+            
+            #print request
+
+        
+    if request.POST:
+        print request.POST
+        
     ro.wurf = 0    
         
     ro.game = request.session['game']
@@ -45,7 +74,7 @@ def kniffel_next(request):
     #
     #   runde = 0
     #   runde = int(runde) + 1
-   
+    
     ro.game.nextround()
     request.session['game_round'] = ro
     ro.w1.hold = False
@@ -53,12 +82,27 @@ def kniffel_next(request):
     ro.w3.hold = False
     ro.w4.hold = False
     ro.w5.hold = False    
+    
+    arr = []
+    xi = 0
+    res_pl = request.session['playerlist']
+    for item in res_pl:
+        arr.insert(xi, item)
+        xi  = xi + 1
+
+        
+    #game_id = ro.game.pk
+    #player_id = 1
+    #act_res = result.objects.get(game__id=game_id)
+    act_res = arr[0]
+    #act_res = result.objects.get(player__id=player_id, game__id=game_id)
+    
     #wuerfeln
     diceset = ro.roll()
     request.session['game_round'] = ro
-    # = diceset[1]
     request.session['diceset'] = diceset
-    
+    request.session['act_res'] = act_res
+    request.session['pot_res'] = check_diceset(diceset)
     #if "game" in request.session:
     #    request.session['game'] = None
     #    del request.session['game']
@@ -72,12 +116,30 @@ def kniffel_next(request):
                           {'playername': request.user,
                            'gamename': None,
                            'sess': request,
+                           'message': msg,
+                           'pot_res': request.session['pot_res'],
                            'diceset': request.session['diceset'],
                            'wurf': request.session['game_round'].wurf,
                            },
                           context_instance=RequestContext(request))
 
-
+def check_diceset(diceset):
+    pot_res = result()
+    pot_res.r1er = c1er(diceset) 
+    pot_res.r2er = c2er(diceset) 
+    pot_res.r3er = c3er(diceset) 
+    pot_res.r4er = c4er(diceset) 
+    pot_res.r5er = c5er(diceset) 
+    pot_res.r6er = c6er(diceset) 
+    #pot_res.rbonus = cbonus(act_res)
+    pot_res.r3p = c3p(diceset) 
+    pot_res.r4p = c4p(diceset) 
+    pot_res.rfullhouse = cfullhouse(diceset) 
+    pot_res.rkleinestr = ckleinestr(diceset) 
+    pot_res.rfgrossestr = cgrossestr(diceset)
+    pot_res.rkniffel = ckniffel(diceset)
+    pot_res.rchance = cchance(diceset)
+    return pot_res
 @csrf_protect
 def kniffel_roll(request):
     if "game_round" in request.session:
@@ -100,7 +162,28 @@ def kniffel_roll(request):
     diceset = ro.roll()
     # = diceset[1]
     request.session['diceset'] = diceset
+    print diceset
+    #print ro.game.build_check(diceset)
+    # UPDATE Possible RESULTSET 
     
+    pot_res = result()
+    pot_res.r1er = c1er(diceset) 
+    pot_res.r2er = c2er(diceset) 
+    pot_res.r3er = c3er(diceset) 
+    pot_res.r4er = c4er(diceset) 
+    pot_res.r5er = c5er(diceset) 
+    pot_res.r6er = c6er(diceset) 
+    #pot_res.rbonus = cbonus(act_res)
+    pot_res.r3p = c3p(diceset) 
+    pot_res.r4p = c4p(diceset) 
+    pot_res.rfullhouse = cfullhouse(diceset) 
+    pot_res.rkleinestr = ckleinestr(diceset) 
+    pot_res.rfgrossestr = cgrossestr(diceset)
+    pot_res.rkniffel = ckniffel(diceset)
+    pot_res.rchance = cchance(diceset)
+    request.session['pot_res'] = pot_res
+    #request.session['pot_res'] = check_diceset(diceset)
+    #request.session['resultset'] = ro.game.build_check(diceset)
     #if "game" in request.session:
     #    request.session['game'] = None
     #    del request.session['game']
@@ -112,8 +195,8 @@ def kniffel_roll(request):
     
     return render_to_response("kniffel/kniffel.html",
                           {'playername': request.user,
-                           'gamename': None,
                            'sess': request,
+                           'pot_res': pot_res,
                            'diceset': request.session['diceset'],
                            'wurf': request.session['game_round'].wurf,
                            },
@@ -147,14 +230,16 @@ def kniffel_stop(request):
         request.session['playerlist'] = None
         del request.session['playerlist']
     
+    
     return render_to_response("kniffel/kniffel.html",
                           {'playername': request.user,
-                           'gamename': None,
-                           'sess': request
+                           'sess': request,
+                           'pot_res': None,
+                           'diceset': None,
+                           'wurf': None,
                            },
-                          context_instance=RequestContext(request))
-    
-    
+                          context_instance=RequestContext(request)) 
+   
 @csrf_protect
 def kniffel_start(request):
     if request.method == 'POST':
@@ -267,7 +352,8 @@ def kniffel_w_hold(request, w_id):
             request.session['game_round'].w5.hold = True
         else:
             request.session['game_round'].w5.hold = False
-
+    
+    request.session['pot_res'] = check_diceset(request.session['game_round'].refresh_state())
     
     return render_to_response("kniffel/kniffel.html",
                           {'playername': request.user,

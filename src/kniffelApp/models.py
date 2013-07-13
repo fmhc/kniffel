@@ -41,7 +41,7 @@ class game(models.Model):
     name = models.CharField(max_length=200, null=True, default='New Game')
     runde = models.IntegerField(default=0)
     player = models.ManyToManyField(player, related_name='pl+', null=True)
-   # activeplayer = 0
+    #activeplayer = player()
     
     #def __init__(self):
         #x = player()
@@ -57,7 +57,30 @@ class game(models.Model):
        
 #    player = [(player()), player(), player(), player()]        
     #player = [(player()), player()]
- 
+    def build_check(self, diceset):
+            for plyr in self.player.all():
+                act_res = result.objects.get(player__id=plyr.pk, game__id=self.pk)
+                pot_res = result()
+                pot_res.r1er = c1er(diceset) 
+                pot_res.r2er = c2er(diceset) 
+                pot_res.r3er = c3er(diceset) 
+                pot_res.r4er = c4er(diceset) 
+                pot_res.r5er = c5er(diceset) 
+                pot_res.r6er = c6er(diceset) 
+                pot_res.rbonus = cbonus(act_res)
+                pot_res.r3p = c3p(diceset) 
+                pot_res.r4p = c4p(diceset) 
+                pot_res.rfullhouse = cfullhouse(diceset) 
+                pot_res.rkleinestr = ckleinestr(diceset) 
+                pot_res.rfgrossestr = cgrossestr(diceset)
+                pot_res.rkniffel = ckniffel(diceset)
+                pot_res.rchance = cchance(diceset)
+                print "-------------------------"
+                print pot_res
+                print "-------------------------"
+                return pot_res
+            
+            
     def play(self):
         
 #        for plyr in self.player.all():
@@ -247,7 +270,177 @@ class game(models.Model):
             self.nextround()
         return True
         
-    
+    def play_result(self):
+        
+#        for plyr in self.player.all():
+#            x = result()
+#            x.game = self
+#            x.player.entry_set.add(plyr)
+#            x.save()
+#        self.runde = 1
+#        self.save()
+       
+#            for plyr in self.player.all():
+#                print "[Spieler " + str(plyr) + "]"
+#                print "[Runde " + str(self.runde) + "]"                
+                #result.objects.get(player__id=1, game__id=1)
+                
+                act_res = result.objects.get(game__id=self.pk)
+                #act_res = result.objects.get(player__id=plyr.pk, game__id=self.pk)
+                pot_res = result()
+                ro = game_round()
+                
+                #wuerfeln
+                diceset = ro.roll()
+                   
+                pot_res.r1er = c1er(diceset) 
+                pot_res.r2er = c2er(diceset) 
+                pot_res.r3er = c3er(diceset) 
+                pot_res.r4er = c4er(diceset) 
+                pot_res.r5er = c5er(diceset) 
+                pot_res.r6er = c6er(diceset) 
+                pot_res.rbonus = cbonus(act_res)
+                pot_res.r3p = c3p(diceset) 
+                pot_res.r4p = c4p(diceset) 
+                pot_res.rfullhouse = cfullhouse(diceset) 
+                pot_res.rkleinestr = ckleinestr(diceset) 
+                pot_res.rfgrossestr = cgrossestr(diceset)
+                pot_res.rkniffel = ckniffel(diceset)
+                pot_res.rchance = cchance(diceset)
+                        
+                print "potentielle ergebnisse"
+                print "[1] - 1er"
+                print act_res.r1er
+                if act_res.r1er == None:
+                    print pot_res.r1er 
+                else:
+                    print str(act_res.r1er) + " x"
+                print "[2] - 2er"
+                print act_res.r2er
+                if act_res.r2er == None:
+                    print pot_res.r2er 
+                else:
+                    print str(act_res.r2er) + " x"
+                print "[3] - 3er"
+                print act_res.r3er
+                if act_res.r3er == None:
+                    print pot_res.r3er 
+                else:
+                    print str(act_res.r3er) + " x"
+                print "[4] - 4er"
+                print act_res.r4er
+                if act_res.r4er == None:
+                    print pot_res.r4er 
+                else:
+                    print str(act_res.r4er) + " x"
+                print "[5] - 5er"
+                print act_res.r5er
+                if act_res.r5er == None:
+                    print pot_res.r5er 
+                else:
+                    print str(act_res.r5er) + " x"
+                print "[6] - 6er"
+                print act_res.r6er
+                if act_res.r6er == None:
+                    print pot_res.r6er 
+                else:
+                    print str(act_res.r6er) + " x"
+                #print "x - Bonus"
+                #print pot_res.rbonus 
+                print pot_res.r3p 
+                print pot_res.r4p 
+                print pot_res.rfullhouse 
+                print pot_res.rkleinestr 
+                print pot_res.rfgrossestr
+                print pot_res.rkniffel
+                print pot_res.rchance 
+                
+                
+                
+                bla = 1
+                
+                
+                def u1er():
+                    if act_res.r1er == None:
+                        act_res.r1er = pot_res.r1er
+                        bla = 0
+                    act_res.rbonus = cbonus(act_res)
+                    print "1er gewaehlt"
+                 
+                def u2er():
+                    if act_res.r2er == None:
+                        act_res.r2er = pot_res.r2er
+                        bla = 0
+                    act_res.rbonus = cbonus(act_res)
+                    print "2er gewaehlt"
+                    
+                def u3er():
+                    if act_res.r3er == None:
+                        act_res.r3er = pot_res.r3er
+                        bla = 0
+                    act_res.rbonus = cbonus(act_res)
+                    print "3er gewaehlt"
+                    
+                def u4er():
+                    if act_res.r4er == None:
+                        act_res.r4er = pot_res.r4er
+                        bla = 0
+                    act_res.rbonus = cbonus(act_res)
+                    print "4er gewaehlt"
+                 
+                def u5er():
+                    if act_res.r5er == None:
+                        act_res.r5er = pot_res.r5er
+                        bla = 0
+                    act_res.rbonus = cbonus(act_res)
+                    print "5er gewaehlt"
+                    
+                def u6er():
+                    if act_res.r6er == None:
+                        act_res.r6er = pot_res.r6er
+                        bla = 0
+                    act_res.rbonus = cbonus(act_res)
+                    print "1er gewaehlt"        
+                                               
+                options = { 1 : u1er,
+                            2 : u2er,
+                            3 : u3er,
+                            4 : u4er,
+                            5 : u5er,
+                            6 : u6er,
+                            }
+                
+                while bla == 1:
+                    huhu = input("Wo setzen?")
+                    options[huhu]()
+                    
+                print "ergebnisse"
+                print act_res.r1er 
+                print act_res.r2er 
+                print act_res.r3er 
+                print act_res.r4er 
+                print act_res.r5er 
+                print act_res.r6er 
+                print act_res.rbonus 
+                print act_res.r3p 
+                print act_res.r4p 
+                print act_res.rfullhouse 
+                print act_res.rkleinestr 
+                print act_res.rfgrossestr
+                print act_res.rkniffel
+                print act_res.rchance 
+                
+                act_res.save()
+                inp = raw_input("naechste Runde (y/n)")
+                
+                if (inp == str('y')):
+                    print "naechster spieler..."
+                else:
+                    print "dann nicht..."
+                    
+                self.nextround()
+            #return True
+       
     def player_list(self):
         return self.player.all()
         #return True
@@ -375,7 +568,9 @@ def cbonus(res):
             
 def checkall(dice):
     
-    return False
+    
+    
+    return dice
 
 
 
