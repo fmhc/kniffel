@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.db.models.base import Model
 from django.test import TestCase
 from unittest import case
+
    
 
 class playerManager(models.Manager):
@@ -462,7 +463,7 @@ class game(models.Model):
 
 
 
-
+import sys
 class result(models.Model):
     game = models.ForeignKey(game, related_name='g+')
     player = models.ForeignKey(player, related_name='p+')
@@ -478,15 +479,45 @@ class result(models.Model):
     r4p = models.IntegerField(null=True) # Viererpasch
     rfullhouse = models.IntegerField(null=True) # full house
     rkleinestr = models.IntegerField(null=True) # 1-2-3-4, 2-3-4-5, oder 3-4-5-6 30 Punkte
-    rfgrossestr = models.IntegerField(null=True) # 1-2-3-4-5 oder 2-3-4-5-6 40 Punkte
+    rgrossestr = models.IntegerField(null=True) # 1-2-3-4-5 oder 2-3-4-5-6 40 Punkte
     rkniffel = models.IntegerField(null=True) # Fuenf gleiche Wuerfel 50 Punkte
     rchance = models.IntegerField(null=True) # Alle Augen zaehlen
+    rsum1 = 0
+    rsum2 = 0
+    
+    
+    def xsum1(self):
+        return 200
+    
+    def xsum2(self):
+        return 300
+    
+
     
     def __unicode__(self):
         return self.player.nick
     
     def sum_oben(self):
-        return 0
+        
+        sum1 = 0
+        #try:
+        if not self.r1er == None: 
+            sum1 = sum1 + int(self.r1er)
+        if not self.r2er == None: 
+            sum1 = sum1 + int(self.r2er)
+        if not self.r3er == None: 
+            sum1 = sum1 + int(self.r3er)
+        if not self.r4er == None: 
+            sum1 = sum1 + int(self.r4er)
+        if not self.r5er == None: 
+            sum1 = sum1 + int(self.r5er)
+        if not self.r6er == None: 
+            sum1 = sum1 + int(self.r6er)                                
+        #except:
+        #    print "Unexpected error:", sys.exc_info()[0]
+        #raise
+        
+        return sum1
     
     def sum_unten(self):
         return 0
@@ -500,6 +531,12 @@ def HighestRepeated(dice, minRepeats):
     repeats = [x for x in unique if dice.count(x) >= minRepeats]
     return max(repeats) if repeats else 0
 
+def Repeated(dice, minRepeats):
+    unique = set(dice)
+    repeats = [x for x in unique if dice.count(x) >= minRepeats]
+    return repeats if repeats else 0
+
+
 def SumOfSingle(dice, selected):
     return dice.count(selected) * selected
 
@@ -507,8 +544,13 @@ def cchance(dice):
     return sum(dice)
  
 def cfullhouse(dice):
-    return OfAKind(dice, 2)
- 
+    x = Repeated(dice, 2)
+    y = Repeated(dice, 3)
+    if not (x == 0) and not (y == 0) and not (x == y):
+        return 25
+    else:
+        return 0
+        
 def c3p(dice):
     return OfAKind(dice, 3)
  
@@ -516,10 +558,22 @@ def c4p(dice):
     return OfAKind(dice, 4)
  
 def ckleinestr(dice):
-    return 15 if tuple(sorted(dice)) == (1,2,3,4,5) else 0
+    tsdice = tuple(sorted(dice))
+    checkdice = list(set(tsdice))
+    if ( checkdice == [1,2,3,4] or checkdice == [2,3,4,5] or checkdice == [3,4,5,6]):
+        points = 30 
+    else:
+        points = 0
+
+    return points
  
 def cgrossestr(dice):
-    return 20 if tuple(sorted(dice)) == (2,3,4,5,6) else 0
+    if ( tuple(sorted(dice)) == (1,2,3,4,5) or tuple(sorted(dice)) == (2,3,4,5,6)):
+        points = 40 
+    else:
+        points = 0
+
+    return points
  
 def c1er(dice):
     return SumOfSingle(dice,1)
@@ -558,7 +612,7 @@ def cbonus(res):
             rsumme = rsumme + res.r6er
         
         #rsum1 = res.r1er + res.r2er + res.r3er + res.r4er + res.r5er + res.r6er
-        if (rsumme >= 63):
+        if (rsumme > 63):
             res.rbonus = 35
             #self.save()
             return res.rbonus

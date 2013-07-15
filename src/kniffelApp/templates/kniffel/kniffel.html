@@ -8,7 +8,12 @@
 	{% include 'fragments/javascript.html' %}
 	<script type="text/javascript">
 	$(document).ready(function(){
-
+	$('#debug').hide();
+	$('#debug_toggle').click(function() {
+	  $('#debug').toggle('slow', function() {
+	    // Animation complete.
+	  });
+	});
 	var_round_rolls_percent = 33 * {{ sess.session.game_round.wurf }}
 	$("#round_progress").css('width', var_round_rolls_percent + '%');
 	var_game_round_percent = 7.7 * {{ sess.session.game.runde }}
@@ -97,35 +102,47 @@
 {% block content %}
 
 
+{% if not sess.session.error == None %}
+<div class="alert" id="error">
+{{ sess.session.error }} 
+</div>
+{% endif %}
 
+{% if not sess.session.success == None %}
+<div class="success" id="error">
+{{ sess.session.success }} 
+</div>
+{% endif %}
 <div class="well" id="starten">
-{% if not sess == False %}
-<div class="well">
-	{{ message }}
-	Playername: {{ playername }}<br>
-	Session Game Name: {{ sess.session.game.name }}<br>	
-	Session Game Player All: {{ sess.session.game.player.all }}<br>
-	Session Playerlist: {{ sess.session.playerlist }}<br>
-	Session Game Runde: {{ sess.session.game.runde }}<br>
-	Session Game_round Wurf: {{ sess.session.game_round.wurf }}<br>
-	Session Diceset: {{ sess.session.diceset }}<br>
-	Session ...: {{ sess.GET.choose }}<br>
-	
-	{% if resultset in sess.session %} Session Resultset: 
-		{{ sess.session.resultset }}<br>
-	{% endif %}
-	{% for key in sess.session.playerlist %}
-		{{ key }} 
+<a href="#" id="debug_toggle" onclick="debug.toggle()" class="btn btn-primary btn-information">Debug-Informationen</a> 
+{% if not hold_w_id == False %}<a href="/kniffel/stop" class="btn btn-primary btn-warning">Spiel beenden</a>{% endif %}
 
-		<br>
-	{% endfor %}
-	Session Player1: {{ sess.session.playerlist.0.player.nick }} 
+{% if not sess == False %}
+	<div class="well" id="debug">
+		Meldung - sess.session.msg:<br>
+		<pre>{{ sess.session.msg }}</pre>
+		Playername: {{ playername }}<br>
+		Session Game Name: {{ sess.session.game.name }}<br>	
+		Session Game Player All: {{ sess.session.game.player.all }}<br>
+		Session Playerlist: {{ sess.session.playerlist }}<br>
+		Session Game Runde: {{ sess.session.game.runde }}<br>
+		Session Game_round Wurf: {{ sess.session.game_round.wurf }}<br>
+		Session Diceset: {{ sess.session.diceset }}<br>
+		Session choose: {{ sess.GET.choose }}<br>
+		
+		{% if resultset in sess.session %} Session Resultset: 
+			{{ sess.session.resultset }}<br>
+		{% endif %}
+		{% for key in sess.session.playerlist %}
+			{{ key }}<br>
+		{% endfor %}
+		Session Player1: {{ sess.session.playerlist.0.player.nick }} 
 	</div>
 {% endif %}
 
 {% if sess.session.game == None %}
 <form action="/kniffel/start" method="POST">{% csrf_token %}
-<label for="gamename">Spielname: </label><input type="text" id="gamename" name="gamename"><br>
+<!--<label for="gamename">Spielname: </label><input type="text" id="gamename" name="gamename"><br>-->
 <label for="player1">Spieler 1: </label><input type="text" id="player1" name="player1"><br>
 <label for="player2">Spieler 2: </label><input type="text" id="player2" name="player2"><br>
 <label for="player3">Spieler 3: </label><input type="text" id="player3" name="player3"><br>
@@ -134,18 +151,11 @@
 {% endif %}
 </form>
 </div>
-{% if not hold_w_id == False %}<div class="well"><a href="/kniffel/stop" class="btn btn-primary btn-warning">stop</a>
-	</div>
-{% endif %}
+
 {% if not sess.session.game == None %}
       <div class="row-fluid">
         <div class="span8">
-         	<div class="well" id="round_counter">
-        		<p id="round_text">Runde {{ sess.session.game.runde }} von 13</p>
-	        	<div class="progress progress-striped active">
-	  				<div id="game_progress" class="bar" style="width: 4%;"></div>
-				</div>
-        	</div>
+         	
         
 	        <div class="well" id="dice_area">
 	        	<div id="dices" class="row">
@@ -166,12 +176,46 @@
 	        	</div>
         	</div>
        		<div class="well">
-       		<div class="progress progress-success progress-striped active">
-				<div id="round_progress" class="bar" style="width: {{ sess.session.game_round.wurf }}%"></div>
-			</div>
-        	<a id="btn_roll" href="/kniffel/roll" class="btn btn-success btn-large btn-block"><i class="icon-play icon-white"></i> Würfeln</a>
-        	<!--<a id="btn_next" href="/kniffel/next" class="btn btn-success btn-large btn-block"><i class="icon-play icon-white"></i> Nächster Spieler / Runde</a>-->
-
+       		
+       			<div class="row-fluid">
+       		
+	       			<div class="span8">	
+						<div class="row-fluid">
+				        	<div class="text-center progress progress-striped active">
+				  				<div id="game_progress" class="bar" style="width: 4%;vertical-align:center;height:100%">
+				  				{% if sess.session.game.runde < 14 %}
+				  				Runde {{ sess.session.game.runde }} von 13
+				  				{% else %}
+				  				Spiel abgeschlossen
+				  				{% endif %}
+				  				</div>
+							</div>
+						</div>
+						<div class="row-fluid">
+				       		<div class="progress progress-success progress-striped active">
+								<div id="round_progress" class="bar" style="width: {{ sess.session.game_round.wurf }}%">
+								{% if sess.session.game.runde < 14 %}
+								{{ sess.session.game_round.wurf }}
+				  				{% else %}
+				  				Spiel abgeschlossen
+				  				{% endif %}
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="span4">
+						<div class="" id="roll_button_div">
+						{% if sess.session.game.runde < 14 %}
+				        	<a id="btn_roll" href="/kniffel/roll" class="btn btn-success btn-large btn-block"><i class="icon-play icon-white"></i> Würfeln</a>
+						{% endif %}
+						</div>
+						
+					</div>
+				
+				
+				</div>
+				
         	</div>
         	<div class="well" id="debug-game">
         	<table>
@@ -224,21 +268,63 @@
         			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.r6er }}</td>{% endif %}
           			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.r6er }}</td>{% endif %}        		
         		</tr>
-        		
+        		<tr>
+        			<td>Bonus</td>
+        			<td>{{ sess.session.playerlist.0.rbonus }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.rbonus }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.rbonus }}</td>{% endif %}
+          			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.rbonus }}</td>{% endif %}        		
+        		</tr>
+        		<tr>
+        			<td>Dreierpasch</td>
+        			<td>{{ sess.session.playerlist.0.r3p }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.r3p }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.r3p }}</td>{% endif %}
+          			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.r3p }}</td>{% endif %}        		
+        		</tr>
+        		<tr>
+        			<td>Viererpasch</td>
+        			<td>{{ sess.session.playerlist.0.r4p }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.r4p }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.r4p }}</td>{% endif %}
+          			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.r4p }}</td>{% endif %}        		
+        		</tr>
+        		<tr>
+        			<td>Full House</td>
+        			<td>{{ sess.session.playerlist.0.rfullhouse }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.rfullhouse }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.rfullhouse }}</td>{% endif %}
+          			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.rfullhouse }}</td>{% endif %}        		
+        		</tr>
+        		<tr>
+        			<td>Kleine Strasse</td>
+        			<td>{{ sess.session.playerlist.0.rkleinestr }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.rkleinestr }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.rkleinestr }}</td>{% endif %}
+          			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.rkleinestr }}</td>{% endif %}        		
+        		</tr>
+        		<tr>
+        			<td>Grosse Strasse</td>
+        			<td>{{ sess.session.playerlist.0.rgrossestr }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.rgrossestr }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.rgrossestr }}</td>{% endif %}
+          			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.rgrossestr }}</td>{% endif %}        		
+        		</tr>
+        		<tr>
+        			<td>Kniffel</td>
+        			<td>{{ sess.session.playerlist.0.rkniffel }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.rkniffel }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.rkniffel }}</td>{% endif %}
+          			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.rkniffel }}</td>{% endif %}        		
+        		</tr>
+        		<tr>
+        			<td>Chance</td>
+        			<td>{{ sess.session.playerlist.0.rchance }}</td>
+        			{% if not sess.session.playerlist.1.player.nick == "" %}<td>{{ sess.session.playerlist.1.rchance }}</td>{% endif %}
+        			{% if not sess.session.playerlist.2.player.nick == "" %}<td>{{ sess.session.playerlist.2.rchance }}</td>{% endif %}
+          			{% if not sess.session.playerlist.3.player.nick == "" %}<td>{{ sess.session.playerlist.3.rchance }}</td>{% endif %}        		
+        		</tr>
 			</table>
-    r2er
-    r3er
-    r4er
-    r5er
-    r6er
-    rbonus
-    r3p
-    r4p
-    rfullhouse
-    rkleinestr
-    rfgrossestr
-    rkniffel
-    rchance
         	</div>
         </div>
         <div class="span4 well">
@@ -252,65 +338,174 @@
         		<tr>
         			<td class="text-center" id="label_r1er">Einser</td>
         			<td class="text-center" id="pot_res_r1er">{{ pot_res.r1er }}</td>
-        			<td class="text-center" id="get_r1er"><a href="/kniffel/next?choose=r1er">wählen</a></td>
+        			<td class="text-center" id="get_r1er">
+        			{% if not sess.session.playerlist.0.r1er == None %}
+        				{{ sess.session.playerlist.0.r1er }}
+        			{% else %}
+        				<a href="/kniffel/next?choose=r1er">wählen</a>
+        			{% endif %}	
+    				</td>
         		</tr>
         		<tr>
 					<td class="text-center" id="label_r2er">Zweier</td>
         			<td class="text-center" id="pot_res_r2er">{{ pot_res.r2er }}</td>
-        			<td class="text-center" id="get_r2er"><a href="/kniffel/next?choose=r2er">wählen</a></td>
+        			<td class="text-center" id="get_r2er">
+        			{% if not sess.session.playerlist.0.r2er == None %}
+        				{{ sess.session.playerlist.0.r2er }}
+        			{% else %}
+        				<a href="/kniffel/next?choose=r2er">wählen</a>
+        			{% endif %}
+        			</td>
         		</tr>
         		<tr>
 					<td class="text-center" id="label_r3er">Dreier</td>
         			<td class="text-center" id="pot_res_r3er">{{ pot_res.r3er }}</td>
-        			<td class="text-center" id="get_r3er"><a href="/kniffel/next?choose=r3er">wählen</a></td>
+        			<td class="text-center" id="get_r3er">
+        			{% if not sess.session.playerlist.0.r3er == None %}
+        				{{ sess.session.playerlist.0.r3er }}
+        			{% else %}
+        				<a href="/kniffel/next?choose=r3er">wählen</a>
+        			{% endif %}
+        			</td>
         		</tr>
         		<tr>
 					<td class="text-center" id="label_r4er">Vierer</td>
         			<td class="text-center" id="pot_res_r4er">{{ pot_res.r4er }}</td>
-        			<td class="text-center" id="get_r4er"><a href="/kniffel/next?choose=r4er">wählen</a></td>
+        			<td class="text-center" id="get_r4er">
+        			{% if not sess.session.playerlist.0.r4er == None %}
+        				{{ sess.session.playerlist.0.r4er }}
+        			{% else %}
+        				<a href="/kniffel/next?choose=r4er">wählen</a>
+        			{% endif %}
+        			</td>
         		</tr>
         		<tr>
 					<td class="text-center" id="label_r5er">Fünfer</td>
         			<td class="text-center" id="pot_res_r5er">{{ pot_res.r5er }}</td>
-        			<td class="text-center" id="get_r5er"><a href="/kniffel/next?choose=r5er">wählen</a></td>
+        			<td class="text-center" id="get_r5er">
+        			{% if not sess.session.playerlist.0.r5er == None %}
+        				{{ sess.session.playerlist.0.r5er }}
+        			{% else %}
+        				<a href="/kniffel/next?choose=r5er">wählen</a>
+        			{% endif %}
+        			</td>
         		</tr>
         		<tr>
 					<td class="text-center" id="label_r6er">Sechser</td>
         			<td class="text-center" id="pot_res_r6er">{{ pot_res.r6er }}</td>
-        			<td class="text-center" id="get_r6er"><a href="/kniffel/next?choose=r6er">wählen</a></td>
+        			<td class="text-center" id="get_r6er">
+        			{% if not sess.session.playerlist.0.r6er == None %}
+        				{{ sess.session.playerlist.0.r6er }}
+        			{% else %}
+        				<a href="/kniffel/next?choose=r6er">wählen</a>
+        			{% endif %}
+        			</td>
+        		</tr>
+        		<tr>
+					<td class="text-center" id="label_rsum1">Summe oben</td>
+        			<td class="text-center" id="pot_res_rsum1">{{ pot_res.rsum1 }}</td>
+        			<td class="text-center" id="get_rsum1">
+        			{% if not sess.session.playerlist.0.rsum1 == None %}
+        				{{ sess.session.playerlist.0.rsum1 }}
+        			{% else %}
+        				0
+        			{% endif %}        			
+        			</td>
+        		</tr>        		
+        		<tr>
+					<td class="text-center" id="label_rbonus">Bonus</td>
+        			<td class="text-center" id="pot_res_rbonus"></td>
+        			<td class="text-center" id="get_rbonus">
+        			{% if not sess.session.playerlist.0.rbonus == None %}
+        				{{ sess.session.playerlist.0.rbonus }}
+        			{% else %}
+        				0
+        			{% endif %}        			
+        			</td>
         		</tr>
         		<tr>
 					<td class="text-center" id="label_rfullhouse">Full House</td>
         			<td class="text-center" id="pot_res_rfullhouse">{{ pot_res.rfullhouse }}</td>
-        			<td class="text-center" id="get_rfullhouse"><a href="/kniffel/next?choose=rfullhouse">wählen</a></td>
+        			<td class="text-center" id="get_rfullhouse">
+        			{% if not sess.session.playerlist.0.rfullhouse == None %}
+        				{{ sess.session.playerlist.0.rfullhouse }}
+        			{% else %}
+        				<a href="/kniffel/next?choose=rfullhouse">wählen</a>
+        			{% endif %}        			
+        			</td>
         		</tr>
         		<tr>
 					<td class="text-center" id="label_rkleinestr">kleine Straße</td>
         			<td class="text-center" id="pot_res_rkleinestr">{{ pot_res.rkleinestr }}</td>
-        			<td class="text-center" id="get_rkleinestr"><a href="/kniffel/next?choose=rkleinestr">wählen</a></td>
+        			<td class="text-center" id="get_rkleinestr">
+					{% if not sess.session.playerlist.0.rkleinestr == None %}
+        				{{ sess.session.playerlist.0.rkleinestr }}
+        			{% else %}
+        				<a href="/kniffel/next?choose=rkleinestr">wählen</a>
+        			{% endif %}        		
+        			
+        			</td>
         		</tr>
         		<tr>
 					<td class="text-center" id="label_rgrossestr">große Straße</td>
         			<td class="text-center" id="pot_res_rgrossestr">{{ pot_res.rgrossestr }}</td>
-        			<td class="text-center" id="get_rgrossestr"><a href="/kniffel/next?choose=rgrossestr">wählen</a></td>
+        			<td class="text-center" id="get_rgrossestr">
+					{% if not sess.session.playerlist.0.rgrossestr == None %}
+        				{{ sess.session.playerlist.0.rgrossestr }}
+        			{% else %}
+        				<a href="/kniffel/next?choose=rgrossestr">wählen</a>
+        			{% endif %}        		
+        			</td>
+        		</tr>
+        		<tr>
+					<td class="text-center" id="label_r3p">Dreierpasch</td>
+        			<td class="text-center" id="pot_res_r3p">{{ pot_res.r3p }}</td>
+        			<td class="text-center" id="get_r3p">
+        			{% if not sess.session.playerlist.0.r3p == None %}
+        				{{ sess.session.playerlist.0.r3p }}
+        			{% else %}
+        				<a href="/kniffel/next?choose=r3p">wählen</a>
+        			{% endif %}        		
+        			</td>
+        		</tr>
+        		<tr>
+					<td class="text-center" id="label_r4p">Viererpasch</td>
+        			<td class="text-center" id="pot_res_r4p">{{ pot_res.r4p }}</td>
+        			<td class="text-center" id="get_r4p">
+        			{% if not sess.session.playerlist.0.r4p == None %}
+        				{{ sess.session.playerlist.0.r4p }}
+        			{% else %}
+        				<a href="/kniffel/next?choose=r4p">wählen</a>
+        			{% endif %}        		
+        			</td>
+        		</tr>
+        		<tr>
+					<td class="text-center" id="label_rkniffel">Kniffel</td>
+        			<td class="text-center" id="pot_res_rkniffel">{{ pot_res.rkniffel }}</td>
+        			<td class="text-center" id="get_rkniffel">
+        			{% if not sess.session.playerlist.0.rkniffel == None %}
+        				{{ sess.session.playerlist.0.rkniffel }}
+        			{% else %}
+        				<a href="/kniffel/next?choose=rkniffel">wählen</a>
+        			{% endif %}        		
+        			</td>
+        		</tr>
+        		<tr>
+					<td class="text-center" id="label_rchance">Chance</td>
+        			<td class="text-center" id="pot_res_rchance">{{ pot_res.rchance }}</td>
+        			<td class="text-center" id="get_rchance">
+        			{% if not sess.session.playerlist.0.rchance == None %}
+        				{{ sess.session.playerlist.0.rchance }}
+        			{% else %}
+        				<a href="/kniffel/next?choose=rchance">wählen</a>
+        			{% endif %}        		
+        			</td>
         		</tr>
         	</table>
         	
         	</div>
         	
-        	<div class="row" style="padding-left:20px">
-        		<div class="roption row-fluid">
-        			<div class="span5 text-center" id="label_r1er">Einser</div>
-        			<div class="span3 text-center" id="pot_res_r1er">{{ pot_res.r1er }}</div>
-        		</div>
-	        	<div class="roption row-fluid">
-        			<div class="span5 well text-center" id="label_r2er">Zweier</div>
-        			<div class="span3 well text-center" id="pot_res_r2er">{{ pot_res.r2er }}</div>
-        		</div>
-        	
-        	
-        	
-        	</div>
+
         	
         	
         	
